@@ -4,10 +4,10 @@
 #include "system.h"
 
 int main() {
-  Elevator* E1 = new Elevator(1, 10);
+  Elevator* E1 = new Elevator("E1", 10);
   std::cout << E1->EnterWeight(11) << std::endl;
   
   System system;
-  system.AddElevator(E1);
+  std::cout << system.AddElevator(E1) << std::endl;
   return 0;
 }
