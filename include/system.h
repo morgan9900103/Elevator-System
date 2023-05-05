@@ -9,8 +9,12 @@
 
 class System {
 public:
-  bool AddElevator(Elevator* elevator);
+  void Run();
+  
 private:
+  void Usage();
+  bool AddElevator(Elevator* elevator);
+  
   std::vector<Elevator*> elevators_;
   std::set<std::string> ids_;
 };  // End System
