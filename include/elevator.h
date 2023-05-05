@@ -7,6 +7,9 @@ public:
   Elevator(int id, int weight);
   ~Elevator();
 
+  // Mutator
+  bool EnterWeight(int weight);
+
 private:
   int id_;
   int weight_;
