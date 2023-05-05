@@ -4,10 +4,12 @@
 class Elevator {
 public:
   Elevator();
-  Elevator(int id);
+  Elevator(int id, int weight);
   ~Elevator();
+
 private:
   int id_;
+  int weight_;
 };
 
-#endif  /* ELEVATOR_H */
+#endif /* ELEVATOR_H */
