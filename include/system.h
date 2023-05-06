@@ -13,8 +13,10 @@ public:
   
 private:
   void Usage();
-  bool AddElevator(Elevator* elevator);
-  
+  void AddElevator(std::string id, int weight);
+  void Status(std::string id) const;
+  Elevator* Find(std::string id) const;
+
   std::vector<Elevator*> elevators_;
   std::set<std::string> ids_;
 };  // End System

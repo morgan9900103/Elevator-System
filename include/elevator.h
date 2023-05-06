@@ -14,9 +14,12 @@ public:
 
   // Accessor
   std::string ID() const;
+  int Weight() const;
+  int Floor() const;
 private:
   std::string id_;
   int weight_;
+  int floor_;
 };
 
 #endif /* ELEVATOR_H */
