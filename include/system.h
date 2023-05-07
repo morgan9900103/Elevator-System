@@ -16,6 +16,7 @@ private:
   void AddElevator(std::string id, int weight);
   void Status(std::string id) const;
   Elevator* Find(std::string id) const;
+  void CallElevator(std::string id, std::string floor_name);
 
   std::vector<Elevator*> elevators_;
   std::set<std::string> ids_;

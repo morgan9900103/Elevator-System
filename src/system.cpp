@@ -66,6 +66,25 @@ Elevator* System::Find(std::string id) const {
   return nullptr;
 }
 
+// Call elevator to specific floor
+void System::CallElevator(std::string id, std::string floor_name) {
+  // Check id
+  if (ids_.count(id) == 0) {
+    std::cout << "No ID: " << id << " in the system." << std::endl;
+    return;
+  }
+
+  // Search the elevator
+  Elevator* elevator = Find(id);
+
+  elevator->InsertFloor(floor_name);
+  std::cout << "Insert " << floor_name << " to " << elevator->ID() << "'s queue. There are ";
+  for (size_t i = 0; i < elevator->FloorDeque().size(); i++) {
+    std::cout << elevator->FloorDeque().at(i) << ", ";
+  }
+  std::cout << "in the queue." << std::endl;
+}
+
 // main function
 void System::Run() {
   Usage();
@@ -94,6 +113,18 @@ void System::Run() {
         std::string elevator_id;
         inputstream >> elevator_id;
         Status(elevator_id);
+      }
+
+      // call-elevator <elevator-id> <floor-name>
+      else if (command == "call-elevator") {
+        std::string elevator_id, floor_name;
+        inputstream >> elevator_id >> floor_name;
+        CallElevator(elevator_id, floor_name);
+      }
+      
+      // Invalid command
+      else {
+        std::cout << "Invalid command" << std::endl;
       }
     }
   }
