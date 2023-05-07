@@ -85,6 +85,37 @@ void System::CallElevator(std::string id, std::string floor_name) {
   std::cout << "in the queue." << std::endl;
 }
 
+// Do next action for the elevator
+void System::Continue(std::string id) {
+  // check id
+  if (ids_.count(id) == 0) {
+    std::cout << "No ID: " << id << " in the system." << std::endl;
+    return;
+  }
+
+  // Search the elevator
+  Elevator* elevator = Find(id);
+
+  // 1. elevator stationay, no next_floor: Stay stationary
+  // 2. elevator stationary, has next_floor: Change to moving
+  // 3. elevator moving, about to be at next_floor: Change to stationary
+  if (elevator->Status() == "stationary") {
+    if (elevator->FloorDeque().size() == 0) {
+      std::cout << "Elevator " << elevator->ID() << " is at " << elevator->Floor() << " stationary." << std::endl;
+    }
+    else if (elevator->FloorDeque().size() > 0) {
+      elevator->ChangeStatus("moving");
+      std::cout << "Elevator " << elevator->ID() << " is moving from " << elevator->Floor() << " to " << elevator->FloorDeque().front() << std::endl;
+    }
+  }
+  else if (elevator->Status() == "moving") {
+    elevator->ChangeStatus("stationary");
+    elevator->ChangeFloor(elevator->FloorDeque().front());
+    elevator->ExtractFloor();
+    std::cout << "Elevator " << elevator->ID() << " is at " << elevator->Floor() << " stationary." << std::endl;
+  }
+}
+
 // main function
 void System::Run() {
   Usage();
@@ -120,6 +151,13 @@ void System::Run() {
         std::string elevator_id, floor_name;
         inputstream >> elevator_id >> floor_name;
         CallElevator(elevator_id, floor_name);
+      }
+
+      // continue <elevator-id>
+      else if (command == "continue") {
+        std::string elevator_id;
+        inputstream >> elevator_id;
+        Continue(elevator_id);
       }
       
       // Invalid command
