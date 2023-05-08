@@ -1,5 +1,7 @@
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "system.h"
 
@@ -17,7 +19,7 @@ void System::Usage() {
 }
 
 // Add an elevator to the system
-void System::AddElevator(std::string id, int weight) {
+void System::AddElevator(std::string id, float weight) {
   // Check id
   if (ids_.count(id) != 0) {
     std::cout << "ID: " << id << " already exist in the system" << std::endl;
@@ -47,9 +49,10 @@ void System::Status(std::string id) const {
   Elevator* elevator = Find(id);
   
   // Print the status
-  std::cout << "elevator id: " << elevator->ID()
-            << ", remaining weight: " << elevator->Weight()
-            << ", current floor: " << elevator->Floor()
+  std::cout << "\televator id: " << elevator->ID() << std::endl
+            << "\tmax weight available: " << elevator->MaxWeight() << std::endl
+            << "\tcurrent weight: " << elevator->CurrentWeight() << std::endl
+            << "\tcurrent floor: " << elevator->Floor() << std::endl
             << std::endl;
 }
 
@@ -116,6 +119,79 @@ void System::Continue(std::string id) {
   }
 }
 
+// Support for people getting in the elevators and requesting floor
+void System::EnterElevator(std::string id, float weight, std::vector<std::string> floors) {
+  // check weight is valid
+  if (weight < 0) {
+    std::cout << "Weight must greater than or equal to 0" << std::endl;
+    return;
+  }
+
+  // check id
+  if (ids_.count(id) == 0) {
+    std::cout << "No ID: " << id << " in the system." << std::endl;
+    return;
+  }
+
+  // Search the elevator
+  Elevator* elevator = Find(id);
+
+  // Enter weight to the elevator
+  if (elevator->EnterWeight(weight)) {
+    std::cout << "Entering " << weight << " kg to the elevator " << elevator->ID() << ". Current weight in the elevator: " << elevator->CurrentWeight() << std::endl;
+  }
+  // Should not reach here
+  else {
+    std::cout << "Failed to enter " << weight << " kg to the elevator " << elevator->ID() << std::endl;
+    return;
+  }
+
+  // Add floor to deque
+  for (const auto& floor : floors) {
+    elevator->InsertFloor(floor);
+    std::cout << "Insert " << floor << " to " << elevator->ID() << "'s queue." << std::endl;
+  }
+  std::cout << "There are ";
+  for (size_t i = 0; i < elevator->FloorDeque().size(); i++) {
+    std::cout << elevator->FloorDeque().at(i) << ", ";
+  }
+  std::cout << "in the queue." << std::endl;
+}
+
+// Support for people getting out the elevators
+void System::ExitElevator(std::string id, float weight) {
+  // check weight is valid
+  if (weight < 0) {
+    std::cout << "Weight must greater than or equal to 0" << std::endl;
+    return;
+  }
+
+  // check id
+  if (ids_.count(id) == 0) {
+    std::cout << "No ID: " << id << " in the system." << std::endl;
+    return;
+  }
+
+  // Search the elevator
+  Elevator* elevator = Find(id);
+
+  // Only when elevator is stationary can people exit elevator
+  if (elevator->Status() != "stationary" ) {
+    std::cout << "Can't exit when elevator is moving." << std::endl;
+    return;
+  }
+
+  // Exit weight from the elevator
+  if (elevator->ExitWeight(weight)) {
+    std::cout << "Exiting " << weight << " kg from elevator " << elevator->ID() << ". Current weight in the elevator: " << elevator->CurrentWeight() << std::endl;
+  }
+
+  // Should not reach here
+  else {
+    std::cout << "Failed to exiting " << weight << " kg from elevator " << elevator->ID() << std::endl;
+  }
+}
+
 // main function
 void System::Run() {
   Usage();
@@ -136,7 +212,7 @@ void System::Run() {
       if (command == "add-elevator") {
         std::string elevator_id, weight;
         inputstream >> elevator_id >> weight;
-        AddElevator(elevator_id, std::stoi(weight));
+        AddElevator(elevator_id, std::stof(weight));
       }
 
       // status <elevator-id>
@@ -158,6 +234,25 @@ void System::Run() {
         std::string elevator_id;
         inputstream >> elevator_id;
         Continue(elevator_id);
+      }
+
+      // enter-elevator <elevator-id> <entering-weight> [optional]<floor-name-1> [optional]<floor-name-12> ...
+      else if (command == "enter-elevator") {
+        std::string elevator_id, weight, floor;
+        std::vector<std::string> floors;
+        inputstream >> elevator_id >> weight;
+        while (inputstream >> floor) {
+          floors.emplace_back(floor);
+        }
+
+        EnterElevator(elevator_id, std::stof(weight), floors);
+      }
+
+      // exit-elevator
+      else if (command == "exit-elevator") {
+        std::string elevator_id, weight;
+        inputstream >> elevator_id >> weight;
+        ExitElevator(elevator_id, std::stof(weight));
       }
       
       // Invalid command

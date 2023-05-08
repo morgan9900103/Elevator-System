@@ -1,21 +1,37 @@
+#include <iostream>
+
 #include "elevator.h"
 
-Elevator::Elevator() : id_("None"), weight_(0), floor_("0"), status_("stationary") {}
+Elevator::Elevator() : id_("None"), max_weight_(0.0), current_weight_(0.0), floor_("0"), status_("stationary") {}
 
-Elevator::Elevator(std::string id, int weight) : id_(id), weight_(weight), floor_("0"), status_("stationary") {}
+Elevator::Elevator(std::string id, float weight) : id_(id), max_weight_(weight), current_weight_(0.0), floor_("0"), status_("stationary") {}
 
 Elevator::~Elevator() {}
 
-bool Elevator::EnterWeight(int weight) {
-  if (weight > weight_) {
+bool Elevator::EnterWeight(float weight) {
+  if (weight < 0 || weight + current_weight_ > max_weight_) {
     return false;
   }
 
-  weight_ -= weight;
+  current_weight_ += weight;
+  return true;
+}
+
+bool Elevator::ExitWeight(float weight) {
+  if (weight < 0 || current_weight_ - weight < 0) {
+    return false;
+  }
+
+  current_weight_ -= weight;
   return true;
 }
 
 void Elevator::InsertFloor(std::string floor_name) {
+  for (const auto& floor : floors_deque_) {
+    if (floor == floor_name) {
+      return;
+    }
+  }
   floors_deque_.push_back(floor_name);
 }
 
@@ -35,8 +51,12 @@ std::string Elevator::ID() const {
   return id_;
 }
 
-int  Elevator::Weight() const {
-  return weight_;
+float Elevator::MaxWeight() const {
+  return max_weight_;
+}
+
+float Elevator::CurrentWeight() const {
+  return current_weight_;
 }
 
 std::string Elevator::Floor() const {
